@@ -482,6 +482,29 @@
     showToast('Refreshed');
   });
 
+  // ── Register Employee form ──────────────────────────────────────────
+  document.getElementById('empRegForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userId = document.getElementById('empUserId').value.trim();
+    const name = document.getElementById('empName').value.trim();
+    const email = document.getElementById('empEmail').value.trim();
+    const password = document.getElementById('empPassword').value;
+    if (!userId || !email || !password) { showToast('Please fill all required fields', true); return; }
+    if (password.length < 6) { showToast('Password must be at least 6 characters', true); return; }
+    try {
+      const token = getToken();
+      const res = await fetch(BASE + '/api/admin/register-employee', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ userId, name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Registration failed');
+      document.getElementById('empRegForm').reset();
+      showToast('✓ Employee ' + userId + ' registered! They can now log in.');
+    } catch (err) { showToast(err.message, true); }
+  });
+
   // ── Auto-refresh ────────────────────────────────────────────────────────
   setInterval(loadAll, 15000);
   document.addEventListener('visibilitychange', () => {

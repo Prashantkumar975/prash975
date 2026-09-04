@@ -13,8 +13,6 @@ import json
 import random
 import string
 import time
-from typing import Optional
-
 from fastapi import APIRouter, Depends, Header, HTTPException
 
 from .. import config, security
@@ -91,6 +89,8 @@ def _require_admin_user(authorization: str = Header(default=None)) -> dict:
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     user = query_one("SELECT * FROM admin_users WHERE id = ?", (payload["sub"],))
+    if not user:
+        user = query_one("SELECT * FROM admin_users WHERE user_id = ?", (payload.get("user_id", payload["sub"]),))
     if not user:
         raise HTTPException(status_code=401, detail="User no longer exists")
     return user
@@ -246,6 +246,41 @@ def list_employees(user: dict = Depends(_require_admin)):
             "activeReports": report_count,
         })
     return {"employees": employees}
+
+
+@router.post("/register-employee", status_code=201)
+def register_employee(body: dict, user: dict = Depends(_require_admin)):
+    """Admin registers a new employee account."""
+    user_id = body.get("userId", "").strip()
+    email = body.get("email", "").strip().lower()
+    password = body.get("password", "")
+    name = body.get("name", "").strip()
+
+    if not user_id or not email or not password:
+        raise HTTPException(status_code=400, detail="userId, email, and password are required.")
+    if len(password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    if query_one("SELECT id FROM admin_users WHERE user_id = ?", (user_id,)):
+        raise HTTPException(status_code=409, detail=f"Employee ID '{user_id}' already exists.")
+    if query_one("SELECT id FROM admin_users WHERE name = ?", (name or email,)):
+        pass  # names can repeat, but user_id is unique
+
+    if not name:
+        name = email.split("@")[0].replace(".", " ").title()
+
+    now = int(time.time() * 1000)
+    emp_id = "adm_" + security.sha256_short(user_id)
+    execute(
+        "INSERT INTO admin_users (id, user_id, name, password_hash, role, created_at)"
+        " VALUES (?, ?, ?, ?, 'employee', ?)",
+        (emp_id, user_id, name, security.hash_password(password), now),
+    )
+    return {
+        "detail": f"Employee '{user_id}' registered successfully.",
+        "userId": user_id,
+        "name": name,
+        "email": email,
+    }
 
 
 # ── Citizen Reports (bridge to the reports table) ────────────────────────

@@ -10,11 +10,12 @@ class RegisterRequest(BaseModel):
     email: str = Field(min_length=3, max_length=200)
     password: str = Field(min_length=6, max_length=200)
     name: str = Field(default="", max_length=200)
+    phone: str = Field(default="", max_length=20)
     role: Literal["USER", "EMPLOYEE"] = "USER"
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: str = Field(description="Email or username")
     password: str
 
 
@@ -64,3 +65,17 @@ class AdminTaskCreate(BaseModel):
 
 class AdminTaskAssign(BaseModel):
     assignedTo: str = Field(min_length=1, max_length=50)
+
+
+class ForgotPasswordRequest(BaseModel):
+    identifier: str = Field(min_length=1, max_length=200, description="Email, phone, or username")
+
+
+class VerifyOtpRequest(BaseModel):
+    identifier: str = Field(min_length=1, max_length=200)
+    otp: str = Field(min_length=6, max_length=6)
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=1, max_length=500)
+    password: str = Field(min_length=8, max_length=200)

@@ -28,11 +28,21 @@ SCHEMA_SQLITE = """
 CREATE TABLE IF NOT EXISTS users (
     id            TEXT PRIMARY KEY,
     email         TEXT UNIQUE NOT NULL,
+    phone         TEXT,
     password_hash TEXT NOT NULL,
     name          TEXT NOT NULL,
     role          TEXT NOT NULL CHECK(role IN ('USER', 'EMPLOYEE')),
     employee_id   TEXT,
     created_at    INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS otp_requests (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     TEXT NOT NULL,
+    otp_code    TEXT NOT NULL,
+    expires_at  INTEGER NOT NULL,
+    verified    INTEGER NOT NULL DEFAULT 0,
+    created_at  INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS reports (
@@ -141,11 +151,21 @@ SCHEMA_POSTGRES = """
 CREATE TABLE IF NOT EXISTS users (
     id            TEXT PRIMARY KEY,
     email         TEXT UNIQUE NOT NULL,
+    phone         TEXT,
     password_hash TEXT NOT NULL,
     name          TEXT NOT NULL,
     role          TEXT NOT NULL CHECK(role IN ('USER', 'EMPLOYEE')),
     employee_id   TEXT,
     created_at    BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS otp_requests (
+    id          BIGSERIAL PRIMARY KEY,
+    user_id     TEXT NOT NULL,
+    otp_code    TEXT NOT NULL,
+    expires_at  BIGINT NOT NULL,
+    verified    INTEGER NOT NULL DEFAULT 0,
+    created_at  BIGINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS reports (
@@ -345,12 +365,6 @@ def executemany(sql: str, seq: list[tuple]) -> None:
             conn.executemany(sql, seq)
             conn.commit()
 
-
-def _seed_users() -> None:
-    """No demo accounts seeded — all users must register via the API."""
-    pass
-
-
 _BINS = [
     ("B-1042", 150, 308, 32, "Mixed"),
     ("B-1043", 305, 410, 64, "Mixed"),
@@ -428,16 +442,6 @@ def _seed_initiatives() -> None:
             [(i[0], i[1], i[2], i[3], i[4], i[5], i[6], now + i[7] * _DAY_MS, i[8], now) for i in _INITIATIVES],
         )
 
-
-def _seed_admin_users() -> None:
-    """No demo admin accounts seeded — all accounts must be created via the admin panel."""
-    pass
-
-
-def _seed_leaderboard_demo() -> None:
-    """Disabled: no demo leaderboard data."""
-    pass
-
 def _migrate() -> None:
     """Add columns to pre-existing databases that predate later schema changes."""
     if _is_postgres:
@@ -469,6 +473,50 @@ def _migrate() -> None:
         if "proof_photo" not in cols:
             execute("ALTER TABLE reports ADD COLUMN proof_photo TEXT")
 
+    # Fix NULL ids in admin_users table (old seed data)
+    rows = query("SELECT rowid, user_id FROM admin_users WHERE id IS NULL")
+    for r in rows:
+        execute("UPDATE admin_users SET id = ? WHERE rowid = ?", (r["user_id"], r["rowid"]))
+
+    # Ensure phone column exists on users table
+    if _is_postgres:
+        user_cols = {
+            r["column_name"]
+            for r in query(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_name = 'users'"
+            )
+        }
+        if "phone" not in user_cols:
+            execute("ALTER TABLE users ADD COLUMN phone TEXT")
+    else:
+        user_cols = {r["name"] for r in query("PRAGMA table_info(users)")}
+        if "phone" not in user_cols:
+            execute("ALTER TABLE users ADD COLUMN phone TEXT")
+
+
+def _seed_admin_accounts() -> None:
+    """Create default admin + employee accounts if none exist."""
+    from . import security
+
+    existing = query_one("SELECT COUNT(*) AS n FROM admin_users")
+    if existing and existing["n"] > 0:
+        return  # accounts already exist
+
+    now = int(time.time() * 1000)
+    accounts = [
+        ("ADMIN-001", "Rajesh Sharma", "admin", "admin123"),
+        ("EMP-001", "Priya Verma", "employee", "emp123"),
+        ("EMP-002", "Amit Singh", "employee", "emp123"),
+    ]
+    for uid, name, role, password in accounts:
+        execute(
+            "INSERT INTO admin_users (id, user_id, name, role, password_hash, created_at)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
+            (uid, uid, name, role, security.hash_password(password), now),
+        )
+    print(f"Seeded {len(accounts)} admin accounts")
+
 
 def init_db() -> None:
     """Initialize database schema and seed demo data."""
@@ -486,13 +534,11 @@ def init_db() -> None:
             conn.commit()
 
     _migrate()
-    _seed_users()
-    _seed_admin_users()
+    _seed_admin_accounts()
     _seed_gis()
     _seed_initiatives()
-    _seed_leaderboard_demo()
 
-    print("OK: Database initialized with demo data")
+    print("OK: Database initialized")
 
 
 def report_from_row(row: dict) -> dict:

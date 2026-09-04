@@ -76,7 +76,6 @@ def create_token(user: dict) -> str:
         "email": user["email"],
         "name": user["name"],
         "role": user["role"],
-        "employee_id": user.get("employee_id"),
         "iat": now,
         "exp": now + config.JWT_EXPIRES_HOURS * 3600,
     }
@@ -106,3 +105,33 @@ def decode_token(token: str) -> dict:
         raise
     except Exception as exc:  # malformed base64 / json
         raise ValueError(f"Invalid token: {exc}") from exc
+
+
+def create_reset_token(user: dict) -> str:
+    """Create a short-lived (10 min) JWT for password reset."""
+    now = int(time.time())
+    header = {"alg": "HS256", "typ": "JWT"}
+    payload = {
+        "sub": user["id"],
+        "purpose": "reset",
+        "iat": now,
+        "exp": now + 600,  # 10 minutes
+    }
+    seg = (
+        _b64url(json.dumps(header, separators=(",", ":")).encode())
+        + "."
+        + _b64url(json.dumps(payload, separators=(",", ":")).encode())
+    )
+    sig = hmac.new(config.JWT_SECRET.encode(), seg.encode(), hashlib.sha256).digest()
+    return seg + "." + _b64url(sig)
+
+
+def verify_reset_token(token: str) -> dict | None:
+    """Verify a reset token. Returns the payload or None if invalid/expired."""
+    try:
+        payload = decode_token(token)
+        if payload.get("purpose") != "reset":
+            return None
+        return payload
+    except (ValueError, Exception):
+        return None

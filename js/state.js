@@ -39,9 +39,6 @@
     { id: 'emp_ahmed', name: 'Ahmed Ali',    specialty: 'Compost',    icon: '🌱', color: '#0ea5e9', groupId: 'grp_west' },
   ];
 
-  /* Map employee accounts (email → roster id) — populated via registration. */
-  const EMPLOYEE_ACCOUNTS = {};
-
   // Waste type → the crew specialty best suited to handle it.
   const SPECIALTY_FOR = { 'E-Waste': 'E-waste', Hazardous: 'Hazmat', Organic: 'Compost', Compost: 'Compost' };
 
@@ -55,7 +52,6 @@
     WASTE_TYPES,
     GROUPS,
     ROSTER,
-    EMPLOYEE_ACCOUNTS,
 
     /* ---------- boot / live sync ---------- */
     async init() {
@@ -91,13 +87,6 @@
     onChange(fn) { listeners.push(fn); },
     _notify() { const list = _reports.slice(); listeners.forEach((fn) => fn(list)); },
     _replace(id, updated) { _reports = _reports.map((r) => (r.id === id ? updated : r)); },
-
-    /* Map a logged-in employee's email to a roster entry. */
-    rosterForEmail(email) {
-      const id = (email || '').toLowerCase();
-      const rid = EMPLOYEE_ACCOUNTS[id] || ROSTER[0].id;
-      return ROSTER.find((r) => r.id === rid) || ROSTER[0];
-    },
 
     /* ---------- group / roster helpers ---------- */
     group(id) { return GROUPS.find((g) => g.id === id); },

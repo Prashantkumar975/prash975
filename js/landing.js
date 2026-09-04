@@ -102,7 +102,7 @@
     el.dataset.counted = '1';
     const target = (el.dataset.count !== undefined && parseFloat(el.dataset.count))
       || parseFloat(el.textContent.replace(/[^\d.]/g, '')) || 0;
-    const dur = 1400;
+    const dur = 2000;
     const start = performance.now();
     function tick(now) {
       const p = Math.min(1, (now - start) / dur);

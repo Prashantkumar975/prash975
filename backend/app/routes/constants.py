@@ -4,7 +4,6 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from ..constants import (
-    EMPLOYEE_ACCOUNTS,
     GROUPS,
     ROSTER,
     STATUS,
@@ -23,5 +22,4 @@ def get_constants():
         "wasteTypes": WASTE_TYPES,
         "groups": GROUPS,
         "roster": ROSTER,
-        "employeeAccounts": EMPLOYEE_ACCOUNTS,
     }

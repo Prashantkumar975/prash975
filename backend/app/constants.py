@@ -42,9 +42,6 @@ ROSTER = [
     {"id": "emp_ahmed", "name": "Ahmed Ali", "specialty": "Compost", "icon": "🌱", "color": "#0ea5e9", "groupId": "grp_west"},
 ]
 
-# Employee login emails → roster id (populated via registration).
-EMPLOYEE_ACCOUNTS = {}
-
 # Waste type → crew specialty best suited to handle it.
 SPECIALTY_FOR = {"E-Waste": "E-waste", "Hazardous": "Hazmat", "Organic": "Compost", "Compost": "Compost"}
 
@@ -86,10 +83,6 @@ def is_lead(employee_id: str, group_id: str) -> bool:
     group = group_by_id(group_id)
     return bool(group and group["leadId"] == employee_id)
 
-
-def employee_id_for_email(email: str) -> str:
-    """Map a login email to a roster member (fallback = first crew member)."""
-    return EMPLOYEE_ACCOUNTS.get((email or "").lower(), ROSTER[0]["id"])
 
 
 # Nominal ward centre used to map a report's exact lat/lng to an area zone.

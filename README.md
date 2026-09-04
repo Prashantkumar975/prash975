@@ -14,7 +14,7 @@ across every view.
 | `/user` | `user.html` | Citizen dashboard — stats banner, report-or-book modal, My Reports tracker, recycling tips |
 | `/employee` | `employee.html` | Employee dashboard — area-group tasks, mark-collected, group-lead dispatch approval + verification panel |
 
-**Note:** public pages load `css/landing.css` + `js/landing.js`; in-app dashboards use `styles.css` + `css/app.css`. Auth and state are now backed by the FastAPI + SQLite backend (see below).
+**Note:** All pages load `css/landing.css`. Auth and state are backed by the FastAPI + SQLite backend (see below).
 
 Passwords are hashed with scrypt and stored in SQLite. Sessions are JWT tokens issued
 by the backend. Registering in a role panel creates an account with that role; logging
@@ -91,11 +91,11 @@ The Python backend in `backend/` owns authentication and all report data:
 ## Structure
 
 ```
-index.html / login.html / user.html / employee.html
+index.html / login.html / register.html / user.html / employee.html / forgot-password.html
 css/
-  styles.css      # base design tokens (shared, dashboards)
-  app.css         # dashboards + app styles
-  landing.css     # premium civic-tech design system for index.html + login.html
+  landing.css     # complete design system (dark theme, auth, dashboards)
+  i18n.css        # language switcher styles
+  info.css        # info pages (faq, about, contact, blog, help)
 js/
   config.js       # app config + API_URL (points at the FastAPI backend)
   api.js          # thin REST client (Bearer JWT, 401 → login)

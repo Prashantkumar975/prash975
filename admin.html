@@ -37,6 +37,7 @@
     <div class="hero-actions">
       <button class="btn btn-primary" id="refreshBtn">Refresh</button>
       <a class="btn btn-outline" href="#incomingReports">Incoming Reports</a>
+      <button class="btn btn-outline" onclick="document.getElementById('registerEmployee').hidden=!document.getElementById('registerEmployee').hidden;document.getElementById('taskSection').hidden=true;document.getElementById('incomingReports').scrollIntoView({behavior:'smooth'});" style="border-color:#8b5cf6;color:#8b5cf6;">👤 Register Employee</button>
     </div>
   </div>
 </section>
@@ -161,6 +162,44 @@
         <div class="empty-state__text">No tasks yet</div>
         <div class="empty-state__sub">Create one above</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Register Employee Section ── -->
+<section class="app-section" id="registerEmployee" hidden style="background:var(--card); border-block:1px solid var(--line);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <span class="kicker" style="color:#8b5cf6;">Employee Management</span>
+        <h2>Register New Employee</h2>
+        <p>Create an employee account so they can log in and accept assigned tasks.</p>
+      </div>
+    </div>
+    <div class="adm-create reveal in">
+      <form id="empRegForm" class="adm-form">
+        <div class="adm-form-row">
+          <div class="field">
+            <label for="empUserId">Employee ID</label>
+            <input id="empUserId" type="text" placeholder="e.g. EMP-003" required />
+          </div>
+          <div class="field">
+            <label for="empName">Full Name</label>
+            <input id="empName" type="text" placeholder="e.g. Sunita Devi" />
+          </div>
+        </div>
+        <div class="adm-form-row">
+          <div class="field">
+            <label for="empEmail">Email</label>
+            <input id="empEmail" type="email" placeholder="e.g. sunita@municipality.gov" required />
+          </div>
+          <div class="field">
+            <label for="empPassword">Password</label>
+            <input id="empPassword" type="password" placeholder="Min 6 characters" minlength="6" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 0 24px rgba(139,92,246,0.3);">➕ Register Employee</button>
+      </form>
     </div>
   </div>
 </section>

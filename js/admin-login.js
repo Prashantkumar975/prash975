@@ -140,7 +140,6 @@
       empSubmit.classList.remove('loading');
     }
   });
-  });
 
   // ── Init ────────────────────────────────────────────────────────────────
   selectRole('admin');

@@ -97,6 +97,8 @@ def _load_yolo():
     if _yolo_model is not None:
         return _yolo_model
 
+    import torch
+    torch.serialization.add_safe_globals([])
     from ultralytics import YOLO
     _yolo_model = YOLO(str(YOLO_MODEL))
     return _yolo_model

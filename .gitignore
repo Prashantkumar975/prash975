@@ -46,14 +46,13 @@ tmp/
 temp/
 *.tmp
 
-# Citizen Auth backend
-citizen-auth/backend/node_modules/
-citizen-auth/backend/data/
-citizen-auth/frontend/node_modules/
-
 # Dev server artifacts
-start-preview.cmd
-launch-preview.ps1
 *.cmd
 *.ps1
 *.bat
+
+# Root DB copy
+swachlens.db
+
+# Test scripts
+test-deployment.py

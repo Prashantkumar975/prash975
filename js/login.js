@@ -135,6 +135,7 @@
       const email = form.querySelector('[data-email]').value.trim();
       const password = form.querySelector('[data-pass]').value;
       const name = (form.querySelector('[data-name]')?.value || '').trim();
+      const phone = (form.querySelector('[data-phone]')?.value || '').trim();
 
       if (!email || !password) { setErr(t('auth.errFill')); return; }
       if (mode === 'register' && password.length < 6) { setErr(t('auth.errPassLen')); return; }
@@ -151,7 +152,7 @@
       try {
         const session = mode === 'login'
           ? await Auth.login(email, password, role)
-          : await Auth.register({ email, password, name }, role);
+          : await Auth.register({ email, password, name, phone }, role);
         toast(t('auth.welcomeBack', { name: session.name || session.email }));
         setTimeout(() => nav(Auth.ROLE_META[role].path), 350);
       } catch (error) {
