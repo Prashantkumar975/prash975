@@ -35,8 +35,6 @@ dist/
 build/
 .cache/
 
-# Netlify
-.netlify/
 
 # Freebuff session data
 .freebuff/

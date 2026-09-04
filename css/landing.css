@@ -1610,6 +1610,29 @@ body.report-open { overflow: hidden; }
 .adm-form { display: flex; flex-direction: column; gap: 14px; }
 .adm-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
+/* Admin assign select dropdown */
+.adm-assign-select {
+  width: 100% !important; padding: 8px 12px !important; border-radius: 8px !important;
+  border: 1px solid var(--border) !important; background-color: #141c2b !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important; background-position: right 10px center !important;
+  color: var(--text-secondary) !important; font-family: var(--font-body) !important; font-size: 13px !important;
+  transition: border-color 0.2s; cursor: pointer;
+  -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;
+  padding-right: 28px !important;
+}
+.adm-assign-select:focus {
+  outline: none !important; border-color: var(--green-500) !important;
+  box-shadow: 0 0 0 3px var(--green-glow) !important;
+}
+.adm-assign-select option {
+  background: #1a2234 !important; color: #fff !important;
+}
+.rc-assign-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  padding-top: 12px; border-top: 1px solid var(--border);
+}
+
 /* Queue rows (dispatch/verify) */
 .queue-row {
   display: flex; align-items: center; gap: 14px;
