@@ -40,5 +40,6 @@ AI_MAX_PHOTO_BYTES = int(os.getenv("AI_MAX_PHOTO_BYTES", "2621440"))  # 2.5 MB
 # ── CORS ──────────────────────────────────────────────────────────────
 FRONTEND_ORIGINS = os.getenv(
     "FRONTEND_ORIGINS",
-    "http://localhost:8090,http://127.0.0.1:8090,http://localhost:8000,http://127.0.0.1:8000",
+    "http://localhost:8090,http://127.0.0.1:8090,http://localhost:8000,http://127.0.0.1:8000,https://swachhlens-app.netlify.app,https://swachhlens-production-e91c.up.railway.app",
 ).split(",")
+
